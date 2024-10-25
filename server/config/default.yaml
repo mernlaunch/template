@@ -1,0 +1,32 @@
+routes:
+  publicPrefix: "/public"
+  protectedPrefix: "/protected"
+  webhookPrefix: "/webhook"
+
+cors:
+  origin: "${CLIENT_URL}" # '${CLIENT_URL}' is replaced with process.env.CLIENT_URL
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
+
+rateLimit:
+  windowMs: 900000
+  max: 100
+
+morganFormat: "none" # "none" | "dev" | "combined" | "common" | "short" | "tiny"
+
+requireHTTPS: false
+
+cookie:
+  maxAge: 100000 # 100 seconds
+
+stripe:
+  successRoute: "/payment-success"
+  cancelRoute: "/"
+
+emailAddress: "your.email@test.com"
+
+emailTemplates:
+  newAuthToken:
+    # '${AUTH_TOKEN}' is replaced with the new auth token
+    subject: "Purchase Confirmation"
+    text: "Your purchase was successful. Here is your new auth token: ${AUTH_TOKEN}"
+    html: "<p>Your purchase was successful. Here is your new auth token: <strong>${AUTH_TOKEN}</strong></p>"
