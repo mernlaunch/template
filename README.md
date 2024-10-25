@@ -16,13 +16,21 @@ Here are the steps to get it up and running:
 
   /server/.env
   `NODE_ENV`: e.g. production, development
+  
   `PORT`
+  
   `CLIENT_URL`: e.g.http://localhost:3000
+  
   `SESSION_SECRET`
+  
   `STRIPE_SECRET_KEY`: API key for Stripe (e.g. sk_test_51OAsk...)
+  
   `STRIPE_PRICE_ID`: ID of the product your SaaS sells (e.g. price_1Q96dRA...)
+  
   `STRIPE_WEBHOOK_SECRET`: The secret that identifies real Stripe webhooks (from Stripe dashboard) (e.g. whsec_134377f57c3e...)
+  
   `DB_URI`: The URI of your MongoDB database (e.g. mongodb://localhost:27017/saas)
+  
   `SENDGRID_API_KEY`: API key for SendGrid (e.g. SG.8fj...)
 
 3. `server config` - in server/config/default.yaml there are a few configuration options that you can change. For example, you can adjust the rate limits, route prefixes, stripe success/cancel routes, confirmation email content, email address, etc. Have a look through and add any information your SaaS needs.
