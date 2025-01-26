@@ -61,9 +61,13 @@ class StripePaymentService extends AbstractPaymentService {
         let event;
 
         try {
+          if (!STRIPE_WEBHOOK_SECRET) {
+            throw new Error('Stripe webhook secret is not defined');
+          }
           event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
+          if (!event) throw new Error('No authenticated event');
         } catch (e) {
-          next(new AppError('Invalid webhook signature', 400, e));
+          return next(new AppError('Invalid webhook signature', 400, e));
         }
 
         const user = StripePaymentService.#getValidWebhookEventUser(event);
