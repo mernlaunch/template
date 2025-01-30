@@ -1,15 +1,15 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const config = require('config');
-const bodyParser = require('body-parser');
+import stripe from 'stripe';
+import config from 'config';
+import bodyParser from 'body-parser';
+import AbstractPaymentService from './AbstractPaymentService.js';
+import { AppError } from '../../errors/index.js';
 
-const AbstractPaymentService = require('./AbstractPaymentService');
-const { AppError } = require('../../errors');
-
+const stripeClient = stripe(process.env.STRIPE_SECRET_KEY);
 const PRICE_ID = process.env.STRIPE_PRICE_ID;
 const CLIENT_URL = process.env.CLIENT_URL;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
-class StripePaymentService extends AbstractPaymentService {
+export default class StripePaymentService extends AbstractPaymentService {
   static #getValidWebhookEventUser(event) {
     if (event.type != 'checkout.session.completed') return null;
     if (event.data.object.payment_status != 'paid') return null;
@@ -23,7 +23,7 @@ class StripePaymentService extends AbstractPaymentService {
 
   static async createCustomer() {
     try {
-      const customer = await stripe.customers.create();
+      const customer = await stripeClient.customers.create();
       return customer.id;
     } catch (e) {
       throw new AppError('Failed to create customer', 500, e);
@@ -46,7 +46,7 @@ class StripePaymentService extends AbstractPaymentService {
         customer: customerId,
       };
 
-      const { url } = await stripe.checkout.sessions.create(sessionParams);
+      const { url } = await stripeClient.checkout.sessions.create(sessionParams);
       return url;
     } catch (e) {
       throw new AppError('Failed to create checkout session', 500, e);
@@ -64,7 +64,7 @@ class StripePaymentService extends AbstractPaymentService {
           if (!STRIPE_WEBHOOK_SECRET) {
             throw new Error('Stripe webhook secret is not defined');
           }
-          event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
+          event = stripeClient.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
           if (!event) throw new Error('No authenticated event');
         } catch (e) {
           return next(new AppError('Invalid webhook signature', 400, e));
@@ -77,6 +77,4 @@ class StripePaymentService extends AbstractPaymentService {
       }
     ];
   }
-}
-
-module.exports = StripePaymentService;
+};

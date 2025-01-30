@@ -1,15 +1,15 @@
-require('dotenv').config();
-const express = require('express');
-const config = require('config');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const rateLimit = require('express-rate-limit');
-const morgan = require('morgan');
-const helmet = require('helmet');
-const session = require('express-session');
-const cookieParser = require('cookie-parser');
-const routes = require('./src/routes');
-const errorMiddleware = require('./src/middleware/errorMiddleware');
+import 'dotenv/config';
+import express from 'express';
+import config from 'config';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import morgan from 'morgan';
+import helmet from 'helmet';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import { publicRouter, protectedRouter, webhookRouter } from './src/routes/index.js';
+import errorMiddleware from './src/middleware/errorMiddleware.js';
 
 const DB_URI = process.env.DB_URI;
 const PORT = process.env.PORT || 3000;
@@ -57,9 +57,9 @@ NODE_ENV === 'production' && requireHTTPS
   });
 
 app.use(rateLimit(rateLimitOptions));
-app.use(publicPrefix, routes.publicRouter);
-app.use(webhookPrefix, routes.webhookRouter);
-app.use(protectedPrefix, routes.protectedRouter);
+app.use(publicPrefix, publicRouter);
+app.use(webhookPrefix, webhookRouter);
+app.use(protectedPrefix, protectedRouter);
 app.use(errorMiddleware);
 
 app.listen(PORT, async () => {

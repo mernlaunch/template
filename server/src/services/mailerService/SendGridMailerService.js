@@ -1,12 +1,12 @@
-const sendgrid = require('@sendgrid/mail');
-const config = require('config');
-const AbstractMailerService = require('./AbstractMailerService');
-const { AppError } = require('../../errors');
+import sendgrid from '@sendgrid/mail';
+import config from 'config';
+import AbstractMailerService from './AbstractMailerService.js';
+import { AppError } from '../../errors/index.js';
 
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 sendgrid.setApiKey(SENDGRID_API_KEY);
 
-class SendGridMailerService extends AbstractMailerService {
+export default class SendGridMailerService extends AbstractMailerService {
   static async send(to, subject, text, html = undefined) {
     if (!html) html = text;
     try {
@@ -21,6 +21,4 @@ class SendGridMailerService extends AbstractMailerService {
       throw new AppError('Failed to send email', 500, e);
     }
   }
-}
-
-module.exports = SendGridMailerService;
+};

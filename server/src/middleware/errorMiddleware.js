@@ -1,6 +1,6 @@
-const { AppError } = require('../errors');
+import { AppError } from '../errors/index.js';
 
-module.exports = (err, req, res, next) => {
+export default (err, req, res, next) => {
   console.error(err.rawError || err);
 
   if (err instanceof AppError) {

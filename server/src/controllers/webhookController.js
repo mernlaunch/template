@@ -1,12 +1,12 @@
-const config = require('config');
-const PaymentService = require('../services/paymentService');
-const MailerService = require('../services/mailerService');
-const users = require('../models/userModel');
-const { AppError } = require('../errors');
+import config from 'config';
+import PaymentService from '../services/paymentService/index.js';
+import MailerService from '../services/mailerService/index.js';
+import users from '../models/userModel.js';
+import { AppError } from '../errors/index.js';
 
-const getPaymentMiddleware = PaymentService.getWebhookMiddleware;
+export const getPaymentMiddleware = PaymentService.getWebhookMiddleware;
 
-async function handlePayment(req, res, next) {
+export async function handlePayment(req, res, next) {
   const { paymentCustomerId, email } = req.user;
 
   try {
@@ -27,6 +27,4 @@ async function handlePayment(req, res, next) {
   } catch (e) {
     next(e);
   }
-}
-
-module.exports = { getPaymentMiddleware, handlePayment };
+};

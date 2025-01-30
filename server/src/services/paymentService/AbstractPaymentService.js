@@ -1,4 +1,4 @@
-class AbstractPaymentService {
+export default class AbstractPaymentService {
   /**
    * Creates a customer for the payment processor.
    * @returns {Promise<string>} - The ID of the newly created customer.
@@ -26,6 +26,4 @@ class AbstractPaymentService {
   static getWebhookMiddleware() {
     throw new Error('Method not implemented');
   };
-}
-
-module.exports = AbstractPaymentService;
+};
