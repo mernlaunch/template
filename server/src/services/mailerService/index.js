@@ -1,1 +1,3 @@
-module.exports = require('./SendGridMailerService');
+import SendGridMailerService from './SendGridMailerService.js';
+
+export default SendGridMailerService;

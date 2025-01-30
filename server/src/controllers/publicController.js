@@ -1,7 +1,7 @@
-const PaymentService = require('../services/paymentService');
-const users = require('../models/userModel');
+import PaymentService from '../services/paymentService/index.js';
+import users from '../models/userModel.js';
 
-async function createCheckoutSession(req, res, next) {
+export async function createCheckoutSession(req, res, next) {
   try {
     const paymentCustomerId = await PaymentService.createCustomer();
     const checkoutUrl = await PaymentService.createCheckoutSession(paymentCustomerId);
@@ -10,9 +10,9 @@ async function createCheckoutSession(req, res, next) {
   } catch (e) {
     next(e);
   }
-}
+};
 
-async function authenticate(req, res, next) {
+export async function authenticate(req, res, next) {
   const authToken = req.headers['authorization']?.split(' ')[1];
   if (!authToken) return next(new AppError('No token provided', 401));
 
@@ -26,9 +26,7 @@ async function authenticate(req, res, next) {
   }
 };
 
-async function deauthenticate(req, res, next) {
+export async function deauthenticate(req, res, next) {
   req.session.user = null;
   return res.status(200).json({ message: 'Deauthenticated' });
-}
-
-module.exports = { createCheckoutSession, authenticate, deauthenticate };
+};

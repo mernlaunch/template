@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
-const { AppError } = require('../../errors');
+import mongoose from 'mongoose';
+import { AppError } from '../../errors/index.js';
 
 /**
  * Service class for interacting with MongoDB models.
  */
-class ModelService {
+export default class ModelService {
   /**
    * Creates an instance of ModelService.
    * @param {string} name - The name of the model.
@@ -122,6 +122,4 @@ class ModelService {
       throw new AppError(`Failed to delete ${this.name} document`, 500, e);
     }
   }
-}
-
-module.exports = ModelService;
+};

@@ -1,1 +1,3 @@
-module.exports = require('./StripePaymentService');
+import StripePaymentService from './StripePaymentService.js';
+
+export default StripePaymentService;

@@ -1,20 +1,18 @@
-const express = require('express');
+import express from 'express';
+import * as publicController from '../controllers/publicController.js';
+import * as protectedController from '../controllers/protectedController.js';
+import * as webhookController from '../controllers/webhookController.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 
-const publicRouter = express.Router();
-const publicController = require('../controllers/publicController');
+export const publicRouter = express.Router();
 publicRouter.post('/checkout-session', publicController.createCheckoutSession);
 publicRouter.post('/authenticate', publicController.authenticate);
 publicRouter.post('/deauthenticate', publicController.deauthenticate);
 
-const protectedRouter = express.Router();
-const protectedController = require('../controllers/protectedController');
-const authMiddleware = require('../middleware/authMiddleware');
+export const protectedRouter = express.Router();
 protectedRouter.use(authMiddleware);
 protectedRouter.get('/is-auth', protectedController.getIsAuth);
 protectedRouter.get('/test-data', protectedController.getTestData);
 
-const webhookRouter = express.Router();
-const webhookController = require('../controllers/webhookController');
+export const webhookRouter = express.Router();
 webhookRouter.post('/payment', webhookController.getPaymentMiddleware(), webhookController.handlePayment);
-
-module.exports = { publicRouter, protectedRouter, webhookRouter };

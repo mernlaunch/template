@@ -2,6 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon --watch src --watch config --watch .env --watch index.js --ext js,json,yaml,yml,env index.js"

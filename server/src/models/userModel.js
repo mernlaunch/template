@@ -1,5 +1,5 @@
-const { v4: uuid } = require('uuid');
-const ModelService = require('../services/modelService');
+import { v4 as uuid } from 'uuid';
+import ModelService from '../services/modelService/index.js';
 
 class UserModel {
   #service;
@@ -64,4 +64,4 @@ class UserModel {
   }
 }
 
-module.exports = new UserModel();
+export default new UserModel();

@@ -1,4 +1,4 @@
-class AbstractMailerService {
+export default class AbstractMailerService {
 
   /**
    * Sends an email to the specified recipient.
@@ -13,6 +13,4 @@ class AbstractMailerService {
   static async sendEmail(to, subject, text, html) {
     throw new Error('Method not implemented');
   }
-}
-
-module.exports = AbstractMailerService;
+};
