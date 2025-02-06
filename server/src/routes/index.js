@@ -8,10 +8,10 @@ export const publicRouter = express.Router();
 publicRouter.post('/checkout-session', publicController.createCheckoutSession);
 publicRouter.post('/authenticate', publicController.authenticate);
 publicRouter.post('/deauthenticate', publicController.deauthenticate);
+publicRouter.get('/is-authenticated', publicController.getIsAuthenticated);
 
 export const protectedRouter = express.Router();
 protectedRouter.use(authMiddleware);
-protectedRouter.get('/is-auth', protectedController.getIsAuth);
 protectedRouter.get('/test-data', protectedController.getTestData);
 
 export const webhookRouter = express.Router();
