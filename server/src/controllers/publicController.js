@@ -19,7 +19,7 @@ export async function authenticate(req, res, next) {
   try {
     const user = await users.getWithAuthToken(authToken);
     if (!user) return next(new AppError('Invalid token', 401));
-    req.session.user = user;
+    req.session.userId = user._id;
     return res.status(200).json({ message: 'Authenticated' });
   } catch (e) {
     next(e);
@@ -27,6 +27,6 @@ export async function authenticate(req, res, next) {
 };
 
 export async function deauthenticate(req, res, next) {
-  req.session.user = null;
+  req.session.userId = undefined;
   return res.status(200).json({ message: 'Deauthenticated' });
 };
