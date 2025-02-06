@@ -1,5 +1,6 @@
 import PaymentService from '../services/paymentService/index.js';
 import users from '../models/userModel.js';
+import { AppError } from '../errors/index.js';
 
 export async function createCheckoutSession(req, res, next) {
   try {
@@ -30,3 +31,11 @@ export async function deauthenticate(req, res, next) {
   req.session.userId = undefined;
   return res.status(200).json({ message: 'Deauthenticated' });
 };
+
+export async function getIsAuthenticated(req, res, next) {
+  const {userId} = req.session;
+  if (!userId) return res.status(200).json({ isAuthenticated: false });
+  const user = await users.getWithId(userId);
+  if (!user) return res.status(200).json({ isAuthenticated: false });
+  return res.status(200).json({ isAuthenticated: true });
+}
