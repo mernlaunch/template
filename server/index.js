@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+import MongoStore from 'connect-mongo';
 import { publicRouter, protectedRouter, webhookRouter } from './src/routes/index.js';
 import errorMiddleware from './src/middleware/errorMiddleware.js';
 
@@ -33,7 +34,11 @@ const sessionOptions = {
     secure: NODE_ENV === 'production',
     httpOnly: true,
     maxAge: config.get('cookie.maxAge')
-  }
+  },
+  store: MongoStore.create({
+    mongoUrl: process.env.DB_URI,
+    collectionName: 'sessions'
+  })
 };
 const rateLimitOptions = config.get('rateLimit');
 const requireHTTPS = config.get('requireHTTPS');
