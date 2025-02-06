@@ -9,7 +9,9 @@ import helmet from 'helmet';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
-import { publicRouter, protectedRouter, webhookRouter } from './src/routes/index.js';
+import publicRouter from './src/routes/publicRouter.js';
+import protectedRouter from './src/routes/protectedRouter.js';
+import webhookRouter from './src/routes/webhookRouter.js';
 import errorMiddleware from './src/middleware/errorMiddleware.js';
 
 const DB_URI = process.env.DB_URI;
