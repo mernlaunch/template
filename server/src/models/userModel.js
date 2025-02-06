@@ -29,6 +29,15 @@ class UserModel {
     });
   }
 
+  async getWithId(id) {
+    try {
+      const user = await this.#service.getOne({ _id: id });
+      return user;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async create(paymentCustomerId, paid = false) {
     try {
       const user = await this.#service.create({ paymentCustomerId, paid });
