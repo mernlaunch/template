@@ -1,11 +1,11 @@
 import { v4 as uuid } from 'uuid';
-import ModelService from '../services/modelService/index.js';
+import { dbService } from '../services/index.js';
 
 class UserModel {
-  #service;
+  #model;
 
   constructor() {
-    this.#service = new ModelService('User', {
+    this.#model = dbService.createModel('User', {
       paymentCustomerId: {
         type: String,
         required: true,
@@ -31,7 +31,7 @@ class UserModel {
 
   async getWithId(id) {
     try {
-      const user = await this.#service.getOne({ _id: id });
+      const user = await this.#model.getOne({ _id: id });
       return user;
     } catch (e) {
       throw e;
@@ -40,7 +40,7 @@ class UserModel {
 
   async create(paymentCustomerId, paid = false) {
     try {
-      const user = await this.#service.create({ paymentCustomerId, paid });
+      const user = await this.#model.create({ paymentCustomerId, paid });
       return user;
     } catch (e) {
       throw e;
@@ -49,7 +49,7 @@ class UserModel {
 
   async getWithAuthToken(authToken) {
     try {
-      const user = await this.#service.getOne({ authToken });
+      const user = await this.#model.getOne({ authToken });
       return user;
     } catch (e) {
       throw e;
@@ -58,7 +58,7 @@ class UserModel {
 
   async verifyPaid(paymentCustomerId, email) {
     try {
-      const user = await this.#service.updateOne(
+      const user = await this.#model.updateOne(
         { paymentCustomerId },
         {
           email,

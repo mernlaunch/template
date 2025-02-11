@@ -1,5 +1,5 @@
 import express from 'express';
-import PaymentService from '../services/paymentService/index.js';
+import { paymentService } from '../services/index.js';
 import users from '../models/userModel.js';
 import { AppError } from '../errors/index.js';
 
@@ -7,8 +7,8 @@ const publicRouter = express.Router();
 
 publicRouter.post('/checkout-session', async (req, res, next) => {
   try {
-    const paymentCustomerId = await PaymentService.createCustomer();
-    const checkoutUrl = await PaymentService.createCheckoutSession(paymentCustomerId);
+    const paymentCustomerId = await paymentService.createCustomer();
+    const checkoutUrl = await paymentService.createCheckoutSession(paymentCustomerId);
     await users.create(paymentCustomerId);
     return res.status(201).json({ checkoutUrl });
   } catch (e) {

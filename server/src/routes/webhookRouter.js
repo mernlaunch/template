@@ -1,6 +1,5 @@
 import express from 'express';
-import PaymentService from '../services/paymentService/index.js';
-import MailerService from '../services/mailerService/index.js';
+import { paymentService, mailerService } from '../services/index.js';
 import users from '../models/userModel.js';
 import { AppError } from '../errors/index.js';
 import config from 'config';
@@ -8,7 +7,7 @@ import config from 'config';
 const webhookRouter = express.Router();
 
 webhookRouter.post('/payment', 
-  PaymentService.getWebhookMiddleware(),
+  paymentService.getWebhookMiddleware(),
   async (req, res, next) => {
     const { paymentCustomerId, email } = req.user;
 
@@ -20,7 +19,7 @@ webhookRouter.post('/payment',
         text: config.get('emailTemplates.newAuthToken.text'),
         html: config.get('emailTemplates.newAuthToken.html'),
       };
-      await MailerService.send(
+      await mailerService.send(
         email,
         emailContent.subject.replace('${AUTH_TOKEN}', user.authToken),
         emailContent.text.replace('${AUTH_TOKEN}', user.authToken),
