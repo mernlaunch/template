@@ -13,6 +13,7 @@ import publicRouter from './src/routes/publicRouter.js';
 import protectedRouter from './src/routes/protectedRouter.js';
 import webhookRouter from './src/routes/webhookRouter.js';
 import errorMiddleware from './src/middleware/errorMiddleware.js';
+import { initializeServices } from './src/services/index.js';
 
 const DB_URI = process.env.DB_URI;
 const PORT = process.env.PORT || 3000;
@@ -75,6 +76,8 @@ app.listen(PORT, async () => {
   try {
     await mongoose.connect(DB_URI);
     console.log('Connected to MongoDB');
+    initializeServices();
+    console.log('Services initialized');
 
   } catch (e) {
     console.error('Failed to connect to MongoDB', e);
