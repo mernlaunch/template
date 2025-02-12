@@ -1,64 +1,69 @@
 import { v4 as uuid } from 'uuid';
-import ModelService from '../services/modelService/index.js';
+import { dbService } from '../services/index.js';
+import { AppError } from '../errors/index.js';
 
 class UserModel {
-  #service;
+  #model;
 
   constructor() {
-    this.#service = new ModelService('User', {
-      paymentCustomerId: {
-        type: String,
-        required: true,
-        unique: true,
-      },
-      paid: {
-        type: Boolean,
-        default: false,
-      },
-      email: {
-        type: String,
-        default: null,
-        unique: false,
-      },
-      authToken: {
-        type: String,
-        default: undefined,
-        unique: true,
-        sparse: true,
-      }
-    });
+    try {
+      this.#model = dbService.createModel('User', {
+        paymentCustomerId: {
+          type: String,
+          required: true,
+          unique: true,
+        },
+        paid: {
+          type: Boolean,
+          default: false,
+        },
+        email: {
+          type: String,
+          default: null,
+          unique: false,
+        },
+        authToken: {
+          type: String,
+          default: undefined,
+          unique: true,
+          sparse: true,
+        }
+      });
+    } catch (e) {
+      throw new AppError('Failed to create User model', 500, e);
+    }
   }
 
   async getWithId(id) {
     try {
-      const user = await this.#service.getOne({ _id: id });
+      const user = await this.#model.getOne({ _id: id });
       return user;
     } catch (e) {
-      throw e;
+      throw new AppError('Failed to get user', 500, e);
     }
   }
 
   async create(paymentCustomerId, paid = false) {
     try {
-      const user = await this.#service.create({ paymentCustomerId, paid });
+      const user = await this.#model.create({ paymentCustomerId, paid });
       return user;
     } catch (e) {
-      throw e;
+      throw new AppError('Failed to create user', 500, e);
     }
   }
 
   async getWithAuthToken(authToken) {
     try {
-      const user = await this.#service.getOne({ authToken });
+      const user = await this.#model.getOne({ authToken });
       return user;
     } catch (e) {
-      throw e;
+      throw new AppError('Failed to get user', 500, e);
     }
   }
 
   async verifyPaid(paymentCustomerId, email) {
     try {
-      const user = await this.#service.updateOne(
+      const user = await this.#model.updateOne(
         { paymentCustomerId },
         {
           email,
@@ -68,7 +73,7 @@ class UserModel {
       );
       return user;
     } catch (e) {
-      throw e;
+      throw new AppError('Failed to update user', 500, e);
     }
   }
 }

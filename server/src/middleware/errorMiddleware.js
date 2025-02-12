@@ -1,11 +1,13 @@
 import { AppError } from '../errors/index.js';
 
 export default (err, req, res, next) => {
-  console.error(err.rawError || err);
-
-  if (err instanceof AppError) {
-    return res.status(err.statusCode).json({ message: err.message });
+  if (!(err instanceof AppError)) {
+    console.error(err);
+    err = new AppError('Internal server error', 500, err);
   }
 
-  return res.status(500).json({ message: 'Internal server error' });
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
+  });
 };
