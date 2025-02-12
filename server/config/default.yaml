@@ -1,3 +1,4 @@
+# Application-wide configs
 routes:
   publicPrefix: "/public"
   protectedPrefix: "/protected"
@@ -18,15 +19,26 @@ requireHTTPS: false
 cookie:
   maxAge: 100000 # 100 seconds
 
-stripe:
-  successRoute: "/payment-success"
-  cancelRoute: "/"
+# Service-specific configs
+services:
+  mailer:
+    enabled: true
+    config:
+      senderAddress: "noreply@yourbusiness.com"
+      templates:
+        # Replaceable variables denoted by ${}
+        newAuthToken:
+          subject: "Purchase Confirmation"
+          text: "Your purchase was successful. Here is your new auth token: ${AUTH_TOKEN}"
+          html: "<p>Your purchase was successful. Here is your new auth token: <strong>${AUTH_TOKEN}</strong></p>"
 
-emailAddress: "your.email@test.com"
+  payment:
+    enabled: true
+    config:
+      successRoute: "/payment-success"
+      cancelRoute: "/"
 
-emailTemplates:
-  newAuthToken:
-    # '${AUTH_TOKEN}' is replaced with the new auth token
-    subject: "Purchase Confirmation"
-    text: "Your purchase was successful. Here is your new auth token: ${AUTH_TOKEN}"
-    html: "<p>Your purchase was successful. Here is your new auth token: <strong>${AUTH_TOKEN}</strong></p>"
+  db:
+    enabled: true
+    config:
+      sessionCollection: "sessions"
