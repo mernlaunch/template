@@ -10,7 +10,6 @@ import cookieParser from 'cookie-parser';
 import publicRouter from './src/routes/publicRouter.js';
 import protectedRouter from './src/routes/protectedRouter.js';
 import webhookRouter from './src/routes/webhookRouter.js';
-import errorMiddleware from './src/middleware/errorMiddleware.js';
 import { initializeServices } from './src/services/index.js';
 
 async function configureApp(services) {
@@ -69,7 +68,6 @@ async function configureApp(services) {
   app.use(publicPrefix, publicRouter);
   app.use(webhookPrefix, webhookRouter);
   app.use(protectedPrefix, protectedRouter);
-  app.use(errorMiddleware);
 
   return { app, PORT };
 }
