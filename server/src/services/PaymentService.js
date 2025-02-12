@@ -6,20 +6,20 @@ export default class PaymentService extends Service {
   #stripeClient;
 
   constructor(
-    stripeSecretKey, 
-    priceId, 
-    clientUrl, 
-    successRoute, 
-    cancelRoute, 
-    webhookSecret 
+    stripeSecretKey,
+    priceId,
+    clientUrl,
+    successRoute,
+    cancelRoute,
+    webhookSecret
   ) {
-    super({ 
-      stripeSecretKey, 
-      priceId, 
-      clientUrl, 
-      successRoute, 
-      cancelRoute, 
-      webhookSecret 
+    super({
+      stripeSecretKey,
+      priceId,
+      clientUrl,
+      successRoute,
+      cancelRoute,
+      webhookSecret
     });
     this.#stripeClient = stripe(this._getConfig('stripeSecretKey'));
   }
@@ -59,8 +59,8 @@ export default class PaymentService extends Service {
   #getValidWebhookEvent(req) {
     const sig = req.headers['stripe-signature'];
     const event = this.#stripeClient.webhooks.constructEvent(
-      req.body, 
-      sig, 
+      req.body,
+      sig,
       this._getConfig('webhookSecret')
     );
     return event;
