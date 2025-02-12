@@ -23,7 +23,8 @@ export function initializeServices() {
 
       case 'db':
         services.dbService = new DBService(
-          process.env.DB_URI
+          process.env.DB_URI,
+          options.config.sessionCollection
         );
         break;
 
@@ -37,7 +38,7 @@ export function initializeServices() {
           process.env.STRIPE_WEBHOOK_SECRET
         );
         break;
-      
+
       default:
         throw new Error(`Unknown service: ${serviceName}`);
     }
