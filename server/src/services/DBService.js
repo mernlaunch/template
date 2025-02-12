@@ -85,8 +85,8 @@ class Model {
 }
 
 export default class DBService extends Service {
-  constructor(URI) {
-    super({ URI });
+  constructor(URI, sessionCollection) {
+    super({ URI, sessionCollection });
   }
 
   async connect() {
@@ -123,7 +123,7 @@ export default class DBService extends Service {
     try {
       const store = MongoStore.create({
         mongoUrl: this._getConfig('URI'),
-        collectionName: 'sessions'
+        collectionName: this._getConfig('sessionCollection')
       });
       return store;
     } catch (e) {
