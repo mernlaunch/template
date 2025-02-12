@@ -1,32 +1,37 @@
 import { v4 as uuid } from 'uuid';
 import { dbService } from '../services/index.js';
+import { AppError } from '../errors/index.js';
 
 class UserModel {
   #model;
 
   constructor() {
-    this.#model = dbService.createModel('User', {
-      paymentCustomerId: {
-        type: String,
-        required: true,
-        unique: true,
-      },
-      paid: {
-        type: Boolean,
-        default: false,
-      },
-      email: {
-        type: String,
-        default: null,
-        unique: false,
-      },
-      authToken: {
-        type: String,
-        default: undefined,
-        unique: true,
-        sparse: true,
-      }
-    });
+    try {
+      this.#model = dbService.createModel('User', {
+        paymentCustomerId: {
+          type: String,
+          required: true,
+          unique: true,
+        },
+        paid: {
+          type: Boolean,
+          default: false,
+        },
+        email: {
+          type: String,
+          default: null,
+          unique: false,
+        },
+        authToken: {
+          type: String,
+          default: undefined,
+          unique: true,
+          sparse: true,
+        }
+      });
+    } catch (e) {
+      throw new AppError('Failed to create User model', 500, e);
+    }
   }
 
   async getWithId(id) {
@@ -34,7 +39,7 @@ class UserModel {
       const user = await this.#model.getOne({ _id: id });
       return user;
     } catch (e) {
-      throw e;
+      throw new AppError('Failed to get user', 500, e);
     }
   }
 
@@ -43,7 +48,7 @@ class UserModel {
       const user = await this.#model.create({ paymentCustomerId, paid });
       return user;
     } catch (e) {
-      throw e;
+      throw new AppError('Failed to create user', 500, e);
     }
   }
 
@@ -52,7 +57,7 @@ class UserModel {
       const user = await this.#model.getOne({ authToken });
       return user;
     } catch (e) {
-      throw e;
+      throw new AppError('Failed to get user', 500, e);
     }
   }
 
@@ -68,7 +73,7 @@ class UserModel {
       );
       return user;
     } catch (e) {
-      throw e;
+      throw new AppError('Failed to update user', 500, e);
     }
   }
 }

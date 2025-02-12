@@ -11,6 +11,8 @@ import publicRouter from './src/routes/publicRouter.js';
 import protectedRouter from './src/routes/protectedRouter.js';
 import webhookRouter from './src/routes/webhookRouter.js';
 import { initializeServices } from './src/services/index.js';
+import errorMiddleware from './src/middleware/errorMiddleware.js';
+import { AppError } from './src/errors/index.js';
 
 async function configureApp(services) {
   const app = express();
@@ -69,6 +71,14 @@ async function configureApp(services) {
   app.use(webhookPrefix, webhookRouter);
   app.use(protectedPrefix, protectedRouter);
 
+  // 404 handler
+  app.use('*', (req, res, next) => {
+    next(new AppError(`404: ${req.baseUrl} is not found`, 404));
+  });
+
+  // Error handler
+  app.use(errorMiddleware);
+
   return { app, PORT };
 }
 
@@ -86,6 +96,22 @@ async function startServer() {
     const { app, PORT } = await configureApp(services);
     app.listen(PORT, () => {
       console.log(`Server listening... [Port: ${PORT}]`);
+    });
+
+    // Handle unhandled rejections
+    process.on('unhandledRejection', (err) => {
+      console.error('UNHANDLED REJECTION! Shutting down...');
+      console.error(err);
+      server.close(() => {
+        process.exit(1);
+      });
+    });
+
+    // Handle uncaught exceptions
+    process.on('uncaughtException', (err) => {
+      console.error('UNCAUGHT EXCEPTION! Shutting down...');
+      console.error(err);
+      process.exit(1);
     });
 
   } catch (error) {
