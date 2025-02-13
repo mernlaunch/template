@@ -1,4 +1,3 @@
-import React from 'react';
 import api from '../../services/api';
 
 export default function LandingPage() {
@@ -9,7 +8,7 @@ export default function LandingPage() {
       window.location.href = data.checkoutUrl;
 
     } catch (e) {
-      alert(e);
+      console.error(e);
     }
   }
 
