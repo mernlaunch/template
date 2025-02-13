@@ -20,7 +20,7 @@ webhookRouter.post('/payment',
 
       return res.json({ received: true });
     } catch (e) {
-      next(new AppError('Error handling payment', 500, e));
+      console.error(e);
       return res.json({ received: true });
     }
   }
