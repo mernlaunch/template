@@ -5,7 +5,10 @@ routes:
   webhookPrefix: "/webhook"
 
 cors:
-  origin: "${CLIENT_URL}" # '${CLIENT_URL}' is replaced with process.env.CLIENT_URL
+  origins:
+    - "${CLIENT_URL}" # replaced with process.env.CLIENT_URL
+    - "${CLIENT_URL_WWW}" # replaced with process.env.CLIENT_URL_WWW
+    - "http://localhost:3000" # development URL
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
 
 rateLimit:
