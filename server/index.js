@@ -22,13 +22,25 @@ async function configureApp(services) {
   const PORT = process.env.PORT || 3000;
   const NODE_ENV = process.env.NODE_ENV || 'development';
   const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
+  const CLIENT_URL_WWW = process.env.CLIENT_URL_WWW || 'http://www.localhost:3000';
   const SESSION_SECRET = process.env.SESSION_SECRET || 'secret';
 
   // Configuration
   const morganFormat = config.get('morganFormat');
   const corsOptions = {
     ...config.get('cors'),
-    origin: config.get('cors').origin.replace('${CLIENT_URL}', CLIENT_URL),
+    origin: (origin, callback) => {
+      const allowedOrigins = config.get('cors.origins').map(o =>
+        o.replace('${CLIENT_URL}', CLIENT_URL)
+          .replace('${CLIENT_URL_WWW}', CLIENT_URL_WWW)
+      );
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      callback(new AppError('Not allowed by CORS', 403));
+    },
     credentials: true
   };
   const sessionOptions = {
