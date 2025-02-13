@@ -1,8 +1,8 @@
-import React from 'react';
+import { useState } from 'react';
 import api from '../../services/api';
 
 export default function SignInPage() {
-  const [authToken, setAuthToken] = React.useState('');
+  const [authToken, setAuthToken] = useState('');
 
   async function handleSignInClick() {
     try {
@@ -10,7 +10,7 @@ export default function SignInPage() {
       window.location.href = '/dashboard';
 
     } catch (e) {
-      alert(e);
+      console.error(e);
     }
   }
 
