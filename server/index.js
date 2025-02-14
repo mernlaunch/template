@@ -1,75 +1,143 @@
-require('dotenv').config();
-const express = require('express');
-const config = require('config');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const rateLimit = require('express-rate-limit');
-const morgan = require('morgan');
-const helmet = require('helmet');
-const session = require('express-session');
-const cookieParser = require('cookie-parser');
-const routes = require('./src/routes');
-const errorMiddleware = require('./src/middleware/errorMiddleware');
+/**
+ * Main server entry point
+ * This file configures and starts the Express server with all necessary middleware and services
+ */
 
-const DB_URI = process.env.DB_URI;
-const PORT = process.env.PORT || 3000;
-const NODE_ENV = process.env.NODE_ENV || 'development';
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'secret';
-const app = express();
+import 'dotenv/config';
+import express from 'express';
+import config from 'config';
+// ... other imports
 
-const morganFormat = config.get('morganFormat');
-const corsOptions = {
-  ...config.get('cors'),
-  origin: config.get('cors').origin
-    .replace('${CLIENT_URL}', CLIENT_URL),
-  credentials: true
-};
-const sessionOptions = {
-  secret: SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: config.get('cookie.maxAge')
+/**
+ * Configures the Express application with all middleware and routes
+ * @param {Object} services - Initialized service instances (eg: DB, Mail, Payment)
+ * @returns {Object} - Contains configured Express app and PORT
+ */
+async function configureApp(services) {
+  const app = express();
+  const { dbService } = services;
+
+  // Required environment variables with fallbacks
+  const PORT = process.env.PORT || 3000;
+  const NODE_ENV = process.env.NODE_ENV || 'development';
+  const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
+  const CLIENT_URL_WWW = process.env.CLIENT_URL_WWW || 'http://www.localhost:3000';
+  const SESSION_SECRET = process.env.SESSION_SECRET || 'secret';
+
+  // Load configuration from config/default.yaml
+  const morganFormat = config.get('morganFormat'); // Format to log HTTP requests
+
+  // CORS configuration for allowed origins
+  const corsOptions = {
+    ...config.get('cors'),
+    origin: (origin, callback) => {
+      // Replace template strings in CORS origins
+      const allowedOrigins = config.get('cors.origins').map(o =>
+        o.replace('${CLIENT_URL}', CLIENT_URL)
+          .replace('${CLIENT_URL_WWW}', CLIENT_URL_WWW)
+      );
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      callback(new AppError('Not allowed by CORS', 403));
+    },
+    credentials: true
+  };
+
+  // Session configuration with MongoDB store
+  const sessionOptions = {
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: NODE_ENV === 'production', // Secure in production only
+      httpOnly: true,
+      maxAge: config.get('cookie.maxAge')
+    },
+    store: dbService.createSessionStore()
+  };
+
+  // Other configuration options
+  const rateLimitOptions = config.get('rateLimit');
+  const requireHTTPS = config.get('requireHTTPS');
+  const publicPrefix = config.get('routes.publicPrefix');
+  const webhookPrefix = config.get('routes.webhookPrefix');
+  const protectedPrefix = config.get('routes.protectedPrefix');
+
+  // Security middleware
+  app.use(helmet()); // Sets various HTTP headers for security
+  app.use(cors(corsOptions)); // Cross-Origin Resource Sharing
+  morganFormat !== 'none' && app.use(morgan(morganFormat)); // HTTP request logging
+  app.use(cookieParser()); // Parse Cookie header
+  app.use(session(sessionOptions)); // Session handling
+
+  // Force HTTPS in production if required
+  if (NODE_ENV === 'production' && requireHTTPS) {
+    app.use((req, res, next) => {
+      if (req.headers['x-forwarded-proto'] !== 'https') {
+        return res.status(403).send('HTTPS is required');
+      }
+      next();
+    });
   }
-};
-const rateLimitOptions = config.get('rateLimit');
-const requireHTTPS = config.get('requireHTTPS');
-const publicPrefix = config.get('routes.publicPrefix');
-const webhookPrefix = config.get('routes.webhookPrefix');
-const protectedPrefix = config.get('routes.protectedPrefix');
 
-app.use(helmet());
-app.use(cors(corsOptions));
-morganFormat !== 'none' && app.use(morgan(morganFormat));
-app.use(cookieParser());
-app.use(session(sessionOptions));
+  // Route configuration with rate limiting
+  app.use(rateLimit(rateLimitOptions));
+  app.use(publicPrefix, publicRouter);     // Public routes (anyone can access)
+  app.use(webhookPrefix, webhookRouter);   // Webhook routes (handles all responses to webhooks)
+  app.use(protectedPrefix, protectedRouter); // Protected routes (require auth)
 
-// ensure HTTPS in production
-NODE_ENV === 'production' && requireHTTPS
-  && app.use((req, res, next) => {
-    if (req.headers['x-forwarded-proto'] !== 'https') {
-      return res.status(403).send('HTTPS is required');
-    }
-    next();
+  // Global error handlers
+  app.use('*', (req, res, next) => {
+    next(new AppError(`404: ${req.baseUrl} is not found`, 404));
   });
+  app.use(errorMiddleware);
 
-app.use(rateLimit(rateLimitOptions));
-app.use(publicPrefix, routes.publicRouter);
-app.use(webhookPrefix, routes.webhookRouter);
-app.use(protectedPrefix, routes.protectedRouter);
-app.use(errorMiddleware);
+  return { app, PORT };
+}
 
-app.listen(PORT, async () => {
-  console.log(`Server listening... [Port: ${PORT}]`);
-
+/**
+ * Initializes and starts the server
+ * - Initializes required services (DB, Mail, Payment)
+ * - Connects to MongoDB
+ * - Configures Express app
+ * - Sets up error handling
+ */
+async function startServer() {
   try {
-    await mongoose.connect(DB_URI);
+    // Initialize all services defined in services/index.js
+    const services = await initializeServices();
+    console.log('Services initialized');
+
+    // Establish MongoDB connection
+    await services.dbService.connect();
     console.log('Connected to MongoDB');
 
-  } catch (e) {
-    console.error('Failed to connect to MongoDB', e);
+    // Start Express server
+    const { app, PORT } = await configureApp(services);
+    app.listen(PORT, () => {
+      console.log(`Server listening... [Port: ${PORT}]`);
+    });
+
+    // Global error handlers for unhandled errors
+    process.on('unhandledRejection', (err) => {
+      console.error('UNHANDLED REJECTION! Shutting down...');
+      console.error(err);
+      server.close(() => process.exit(1));
+    });
+
+    process.on('uncaughtException', (err) => {
+      console.error('UNCAUGHT EXCEPTION! Shutting down...');
+      console.error(err);
+      process.exit(1);
+    });
+
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
-});
+}
+
+startServer();

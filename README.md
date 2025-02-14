@@ -1,42 +1,128 @@
-Thank's for purchasing the early release of this MERN SaaS template!
+# MERN SaaS Template
 
-This template includes everything you need to set up a simple MERN-stack SaaS application. It includes a simple account system, stripe integration (for 1-time payment products), server configuration, a front-end that is ready to be styled, and more.
+A modern, production-ready template for building SaaS applications with the MERN stack (MongoDB, Express, React, Node.js). Features built-in payment processing, authentication, and email integration.
 
-It is perfect for someone who is fimilar with React and Express, but wants to save time on setting up the basics of a SaaS application. Don't re-invent the wheel :)
+## Features
 
-There are two folders. /client contains a create-react-app application, and /server contains an express server.
+- 💳 **Stripe Integration** - Accept one-time payments
+- 📧 **Email Integration** - SendGrid-powered transactional emails
+- 🔐 **Token Authentication** - Secure authentication flow
+- 🗄️ **MongoDB Session Store** - Reliable session management
+- ⚡ **Express Backend** - RESTful API with error handling
+- ⚛️ **React Frontend** - Ready-to-style components
+- 🛡️ **Security Features** - CORS, rate limiting, and more
 
-Here are the steps to get it up and running:
+## Project Structure
 
-1. `npm i` - cd into both /client and /server, and run npm i to install necessary node packages.
-2. `.env` - create a .env file at the root of both /client and /server. Here are all the environment variables that must be specified to ensure proper functionaility:
+```
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/    # React components
+│   │   ├── services/      # API client
+│   │   └── styles/        # CSS styles
+│   └── public/             # Static assets
+└── server/                 # Express backend
+    ├── config/             # Configuration files
+    └── src/
+        ├── errors/         # Custom errors
+        ├── middleware/     # Express middleware
+        ├── models/         # Database models
+        ├── routes/         # API routes
+        └── services/       # Core services
+```
 
-  /client/.env
-  `REACT_APP_API_URL`: The URL of the server. Should not include a last /. e.g. http://localhost:4000
+## Quick Start
 
-  /server/.env
-  `NODE_ENV`: e.g. production, development
-  
-  `PORT`
-  
-  `CLIENT_URL`: e.g.http://localhost:3000
-  
-  `SESSION_SECRET`
-  
-  `STRIPE_SECRET_KEY`: API key for Stripe (e.g. sk_test_51OAsk...)
-  
-  `STRIPE_PRICE_ID`: ID of the product your SaaS sells (e.g. price_1Q96dRA...)
-  
-  `STRIPE_WEBHOOK_SECRET`: The secret that identifies real Stripe webhooks (from Stripe dashboard) (e.g. whsec_134377f57c3e...)
-  
-  `DB_URI`: The URI of your MongoDB database (e.g. mongodb://localhost:27017/saas)
-  
-  `SENDGRID_API_KEY`: API key for SendGrid (e.g. SG.8fj...)
+1. **Install Dependencies**
 
-3. `server config` - in server/config/default.yaml there are a few configuration options that you can change. For example, you can adjust the rate limits, route prefixes, stripe success/cancel routes, confirmation email content, email address, etc. Have a look through and add any information your SaaS needs.
+   ```bash
+   # Install client dependencies
+   cd client && npm install
 
-4. `start` - in /server run `npm run dev` to start the server. In /client run `npm start` to start the client.
+   # Install server dependencies
+   cd server && npm install
+   ```
 
-If you have any questions, queries, or suggestions, feel free to reach out to me on X: @charliedbtaylor
+2. **Environment Setup**
 
-I'll be updating this template regularly, adding features, fixing bugs, and improving the documentation. If you have any suggestions, please let me know!
+   Create `.env` files in both client and server directories:
+
+   `client/.env`:
+   ```
+   REACT_APP_API_URL=http://localhost:4000
+   ```
+
+   `server/.env`:
+   ```
+   NODE_ENV=development
+   PORT=4000
+   CLIENT_URL=http://localhost:3000
+   SESSION_SECRET=your-secret-key
+   STRIPE_SECRET_KEY=sk_test_...
+   STRIPE_PRICE_ID=price_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   DB_URI=mongodb://localhost:27017/your-db
+   SENDGRID_API_KEY=SG....
+   ```
+
+3. **Configure Application**
+
+   Edit `default.yaml` to configure:
+   - Rate limiting
+   - CORS settings
+   - Email templates
+   - Route prefixes
+   - Cookie settings
+   - Which services are enabled
+   - ...
+
+4. **Start Development Servers**
+
+   ```bash
+   # Start backend (http://localhost:4000)
+   cd server && npm run dev
+
+   # Start frontend (http://localhost:3000)
+   cd client && npm start
+   ```
+
+## Authentication Flow
+
+1. User makes payment via Stripe
+2. Payment webhook triggers email with auth token
+3. User signs in with token from email
+4. Session cookie maintains authentication
+
+## Build Frontend for Production
+
+```bash
+cd client && npm run build
+```
+
+## Production Deployment
+
+1. Set `NODE_ENV=production` in server
+2. Configure production URLs
+3. Build frontend with `npm run build`
+4. Deploy server and built client
+
+## License
+
+This project is licensed under the Mozilla Public License 2.0 (MPL-2.0), which means:
+
+### You are free to:
+- ✅ Use the code commercially
+- ✅ Modify the code
+- ✅ Distribute the code
+- ✅ Use the code privately
+
+### You must:
+- ⚠️ Include the original license and copyright notices
+- ⚠️ Disclose your modifications to this source code
+- ⚠️ License modifications under MPL-2.0
+- ⚠️ Provide attribution to the original author (@charliedbtaylor)
+
+### You do NOT need to:
+- ❌ Make other parts of your application open source
+- ❌ Pay any royalties or fees
+- ❌ Submit your changes back to this repository
