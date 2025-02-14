@@ -1,5 +1,9 @@
 import api from '../../services/api';
 
+/**
+ * Landing-page page component
+ * Redirects users to a stripe checkout if they click the sign-up button
+ */
 export default function LandingPage() {
 
   async function handleSignUpClick() {

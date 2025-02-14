@@ -1,47 +1,58 @@
-# Application-wide configs
+# ---------- Application-wide configurations ----------
 routes:
-  publicPrefix: "/public"
-  protectedPrefix: "/protected"
-  webhookPrefix: "/webhook"
+  # URL prefixes for different route types
+  publicPrefix: "/public" # Routes that don't require authentication
+  protectedPrefix: "/protected" # Routes that require authentication
+  webhookPrefix: "/webhook" # Routes for external service webhook events
 
+# CORS (Cross-Origin Resource Sharing) settings
 cors:
   origins:
-    - "${CLIENT_URL}" # replaced with process.env.CLIENT_URL
-    - "${CLIENT_URL_WWW}" # replaced with process.env.CLIENT_URL_WWW
-    - "http://localhost:3000" # development URL
+    - "${CLIENT_URL}" # Main application URL from env
+    - "${CLIENT_URL_WWW}" # WWW subdomain URL from env
+    - "http://localhost:3000" # Local development URL
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
 
+# Rate limiting to prevent abuse
 rateLimit:
-  windowMs: 900000
-  max: 100
+  windowMs: 900000 # 15 minutes
+  max: 100 # Max 100 requests per windowMs
 
-morganFormat: "none" # "none" | "dev" | "combined" | "common" | "short" | "tiny"
+# HTTP request logging format
+# Options: "none" | "dev" | "combined" | "common" | "short" | "tiny"
+morganFormat: "none"
 
+# Force HTTPS in production
 requireHTTPS: false
 
+# Session cookie settings
 cookie:
-  maxAge: 100000 # 100 seconds
+  maxAge: 3600000 # Cookie lifetime in milliseconds (an hour)
 
-# Service-specific configs
+# ---------- Service-specific configurations ----------
 services:
+  # Email service (SendGrid)
   mailer:
     enabled: true
     config:
       senderAddress: "noreply@yourbusiness.com"
       templates:
-        # Replaceable variables denoted by ${}
+        # Auth token email template
+        # Uses ${VAR} syntax for variable replacement
         newAuthToken:
           subject: "Purchase Confirmation"
           text: "Your purchase was successful. Here is your new auth token: ${AUTH_TOKEN}"
           html: "<p>Your purchase was successful. Here is your new auth token: <strong>${AUTH_TOKEN}</strong></p>"
 
+  # Payment service (Stripe)
   payment:
     enabled: true
     config:
-      successRoute: "/payment-success"
-      cancelRoute: "/"
+      successRoute: "/payment-success" # Redirect after successful payment
+      cancelRoute: "/" # Redirect after cancelled payment
 
+  # Database service (MongoDB)
   db:
     enabled: true
     config:
-      sessionCollection: "sessions"
+      sessionCollection: "sessions" # Collection name for storing sessions

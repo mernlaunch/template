@@ -1,4 +1,9 @@
-export default function LandingPage() {
+/**
+ * Success page shown after Stripe payment completion
+ * Informs user to check email for auth token
+ * @route /payment-success
+ */
+export default function PaymentSuccessPage() {
   return (
     <>
       <h1>Check Your Inbox</h1>

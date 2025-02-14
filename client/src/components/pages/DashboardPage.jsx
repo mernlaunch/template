@@ -3,10 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import ProtectedPage from '../ProtectedPage';
 
+/**
+ * Protected dashboard page component
+ * Only accessible to authenticated users via [`ProtectedPage`](client/src/components/ProtectedPage.jsx)
+ * Displays test data from protected API endpoint
+ */
 export default function DashboardPage() {
   const [testData, setTestData] = useState(null);
   const navigate = useNavigate();
 
+  /**
+   * Fetches test data from protected endpoint
+   * Uses [`api.getTestData`](client/src/services/api.js)
+   */
   async function getTestData() {
     try {
       const response = await api.getTestData();
@@ -16,6 +25,10 @@ export default function DashboardPage() {
     }
   }
 
+  /**
+   * Handles sign out button click
+   * Uses [`api.deauthenticate`](client/src/services/api.js)
+   */
   async function handleSignOut() {
     try {
       await api.deauthenticate();
@@ -25,6 +38,7 @@ export default function DashboardPage() {
     }
   }
 
+  // Fetch test data on component mount
   useEffect(() => {
     getTestData();
   }, []);

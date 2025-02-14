@@ -1,20 +1,32 @@
+/* Default base-styles. Feel fre to delete these and style your app how you like! */
+/* If using TailwindCSS, import the tailwind files in here */
+
+/* Global reset and spacing */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  /* Include padding and border in element width */
   margin: 5px;
+  /* Consistent spacing between all elements */
 }
 
+/* Base typography */
 html {
+  /* System font stack for optimal native rendering */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
+/* Page layout */
 body {
   padding: 20px;
+  /* Page margin */
 }
 
+/* Form elements */
 input,
 button {
   padding: 5px;
+  /* Consistent padding for interactive elements */
 }

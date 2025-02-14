@@ -2,9 +2,24 @@ import Service from './Service.js';
 import stripe from 'stripe';
 import bodyParser from 'body-parser';
 
+/**
+ * Payment processing service using Stripe
+ * Handles customer creation, checkout sessions, and webhook processing
+ * @extends Service
+ */
 export default class PaymentService extends Service {
+  /** @private Initialized Stripe client instance */
   #stripeClient;
 
+  /**
+   * Creates new PaymentService instance
+   * @param {string} stripeSecretKey - Secret key from Stripe dashboard
+   * @param {string} priceId - Stripe Price ID for the product
+   * @param {string} clientUrl - Base URL of the client application
+   * @param {string} successRoute - Route in the client to redirect after successful payment
+   * @param {string} cancelRoute - Route in the client to redirect after cancelled payment
+   * @param {string} webhookSecret - Webhook signing secret from Stripe
+   */
   constructor(
     stripeSecretKey,
     priceId,
@@ -13,6 +28,7 @@ export default class PaymentService extends Service {
     cancelRoute,
     webhookSecret
   ) {
+    // Initialize the parent class, setting the `requiredConfig` property
     super({
       stripeSecretKey,
       priceId,
@@ -24,6 +40,11 @@ export default class PaymentService extends Service {
     this.#stripeClient = stripe(this._getConfig('stripeSecretKey'));
   }
 
+  /**
+   * Creates a new Stripe customer
+   * @returns {Promise<string>} Stripe customer ID
+   * @throws {ServiceError} If customer creation fails
+   */
   async createCustomer() {
     try {
       const customer = await this.#stripeClient.customers.create();
@@ -33,6 +54,12 @@ export default class PaymentService extends Service {
     }
   }
 
+  /**
+   * Creates a Stripe checkout session for one-time payment
+   * @param {string} customerId - Stripe customer ID
+   * @returns {Promise<string>} Checkout session URL
+   * @throws {ServiceError} If session creation fails or missing customerId
+   */
   async createCheckoutSession(customerId) {
     this._validateParams({ customerId }, ['customerId']);
 
@@ -56,6 +83,12 @@ export default class PaymentService extends Service {
     }
   }
 
+  /**
+   * Validates and constructs Stripe webhook event
+   * @param {Request} req - Express request object
+   * @returns {Object} Validated Stripe event
+   * @private
+   */
   #getValidWebhookEvent(req) {
     const sig = req.headers['stripe-signature'];
     const event = this.#stripeClient.webhooks.constructEvent(
@@ -66,6 +99,12 @@ export default class PaymentService extends Service {
     return event;
   }
 
+  /**
+   * Extracts user data from webhook event if payment was successful
+   * @param {Object} event - Stripe webhook event
+   * @returns {Object|null} User data or null if invalid/incomplete
+   * @private
+   */
   #getValidWebhookEventUser(event) {
     if (event.type !== 'checkout.session.completed') return null;
     if (event.data.object.payment_status !== 'paid') return null;
@@ -77,8 +116,14 @@ export default class PaymentService extends Service {
     return { paymentCustomerId, email };
   }
 
+  /**
+   * Creates middleware array for handling Stripe webhooks
+   * Validates webhook signature and extracts user data
+   * @returns {Array<Function>} Middleware functions
+   */
   getWebhookMiddleware() {
     return [
+      // Stripe requires the raw body to construct the event
       bodyParser.raw({ type: 'application/json' }),
       (req, res, next) => {
         try {
@@ -92,6 +137,7 @@ export default class PaymentService extends Service {
             return res.status(200).send({ received: true });
           }
 
+          // Attach the user data (email and paymentCustomerId) to the request
           req.user = user;
           next();
         } catch (e) {
