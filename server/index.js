@@ -6,7 +6,18 @@
 import 'dotenv/config';
 import express from 'express';
 import config from 'config';
-// ... other imports
+import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import morgan from 'morgan';
+import helmet from 'helmet';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import publicRouter from './src/routes/publicRouter.js';
+import protectedRouter from './src/routes/protectedRouter.js';
+import webhookRouter from './src/routes/webhookRouter.js';
+import { initializeServices } from './src/services/index.js';
+import errorMiddleware from './src/middleware/errorMiddleware.js';
+import { AppError } from './src/errors/index.js';
 
 /**
  * Configures the Express application with all middleware and routes
